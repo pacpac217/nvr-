@@ -27,8 +27,8 @@ const imgThamGiaFacebook = pathData + "imgThamGiaFacebook.png";
 const imgTaoTaiKhoanMoi = pathData + "imgTaoTaiKhoanMoi.png";
 const imgDaCoTaiKhoan = pathData + "imgDaCoTaiKhoan.png";
 
-const imgDaCoTaiKhoan = pathData + "imgEmailCuaBanLaGi.png"; 
-const imgDaCoTaiKhoan = pathData + "imgSoDiDongCuaBanLaGi.png";
+const imgEmailCuaBanLaGi = pathData + "imgEmailCuaBanLaGi.png"; 
+const imgSoDiDongCuaBanLaGi = pathData + "imgSoDiDongCuaBanLaGi.png";
 
 const pathConfig = pathData + "config.txt";
 const pathFirstname = pathData + "firstname.txt";
@@ -1646,17 +1646,26 @@ function _regAcc(intI, strMode) {
             debug: false,
             method: 1
         });
-        if (btnResult[0] && btnResult[0].length > 0) {
+
+        if (
+            Array.isArray(btnResult) &&
+            btnResult.length > 0 &&
+            Array.isArray(btnResult[0]) &&
+            btnResult[0].length > 0 &&
+            btnResult[0][0] &&
+            typeof btnResult[0][0].x === 'number' &&
+            typeof btnResult[0][0].y === 'number'
+        ) {
             _Click(btnResult[0][0].x, btnResult[0][0].y);
         } else {
-            // Nếu không tìm thấy theo hình, thử click tọa độ mặc định
-            _Click(375, 680); // Điều chỉnh lại tọa độ nếu cần
+            _Click(375, 680); // fallback nếu không tìm được hình
         }
         usleep(1000000);
 
         // Đợi chuyển sang giao diện nhập số điện thoại
         waitImage(imgSoDiDongCuaBanLaGi, 5, "top");
     }
+
     // Đến đây chắc chắn là giao diện nhập số điện thoại
     tg = _currentTime();
     let phone = genPhone(dauso[intI]);
@@ -1677,7 +1686,6 @@ function _regAcc(intI, strMode) {
     _Click(375, 620);
     usleep(1000000);
     if (_timeStart(tg) > 60) return 0;
-
 
     let y1 = 620;
     _waitPixelArr(200, y1, [6781066, 13357785, 6122619, 14541544], time30);
