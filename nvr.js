@@ -20,7 +20,6 @@ const {
 } = at;
 let base64 = require(rootDir() + "/Facebook/base64.js");
 
-console.log("Start script!");// ghi lai log
 
 const pathData = rootDir() + "/Facebook/data/";
 const imgKhongGuiLaiMa = pathData + "imgKhongGuiLaiMa.png";
@@ -31,7 +30,7 @@ const imgDaCoTaiKhoan = pathData + "imgDaCoTaiKhoan.png";
 
 
 
-const imgEmailCuaBanLaGi = pathData + "imgEmailCuaBanLaGi.png"; 
+const imgEmailCuaBanLaGi = pathData + "imgEmailCuaBanLaGi.png";
 const imgSoDiDongCuaBanLaGi = pathData + "imgSoDiDongCuaBanLaGi.png";
 
 const pathConfig = pathData + "config.txt";
@@ -1642,34 +1641,31 @@ function _regAcc(intI, strMode) {
         toast("Giao diện Email. Chuyển sang đăng ký bằng số di động...", "center", 1);
 
         // Click vào nút "Đăng ký bằng số di động" theo hình
-        let btnResult = findImage({
-            targetImagePath: imgDangKySDT,
-            count: 1,
-            threshold: 0.95,
-            region: null,
-            debug: false,
-            method: 1
-        });
-        console.log("btnResult:", JSON.stringify(btnResult));
-        if (
-            btnResult !== null &&
-            btnResult.length > 0 &&
-            btnResult[0] &&
-            btnResult[0].length > 0 &&
-            btnResult[0][0] &&
-            typeof btnResult[0][0].x === 'number' &&
-            typeof btnResult[0][0].y === 'number'
-        ) {
-            _Click(btnResult[0][0].x, btnResult[0][0].y);
-        } else {
-            _Click(375, 680);
+        if (waitImage(imgEmailCuaBanLaGi, 2, "top") != 0) {
+            toast("Giao diện Email. Chuyển sang đăng ký bằng số di động...", "center", 1);
+
+            // Quét tìm màu xanh nút trong vùng dự kiến (kiểu iOS)
+            let found = false;
+            let targetColor = 0x007AFF; // màu xanh dương iOS
+            let colorDelta = 0x30000;   // cho phép lệch màu (nên giữ nguyên)
+            for (let y = 670; y <= 700; y += 5) {
+                for (let x = 330; x <= 420; x += 5) {
+                    let color = getColor(x, y)[0][0];
+                    if (Math.abs(color - targetColor) < colorDelta) {
+                        _Click(x, y);
+                        found = true;
+                        break;
+                    }
+                }
+                if (found) break;
+            }
+            if (!found) {
+                _Click(375, 680); // fallback click nếu không tìm thấy màu xanh
+            }
+            usleep(1000000);
+            waitImage(imgSoDiDongCuaBanLaGi, 5, "top");
         }
-        usleep(1000000);
-
-        // Đợi chuyển sang giao diện nhập số điện thoại
-        waitImage(imgSoDiDongCuaBanLaGi, 5, "top");
     }
-
     // Đến đây chắc chắn là giao diện nhập số điện thoại
     tg = _currentTime();
     let phone = genPhone(dauso[intI]);
@@ -3164,4 +3160,3 @@ if (test == 0) {
         usleep(3000000);
     }
 }
-
