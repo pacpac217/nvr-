@@ -27,6 +27,9 @@ const imgThamGiaFacebook = pathData + "imgThamGiaFacebook.png";
 const imgTaoTaiKhoanMoi = pathData + "imgTaoTaiKhoanMoi.png";
 const imgDaCoTaiKhoan = pathData + "imgDaCoTaiKhoan.png";
 
+const imgDaCoTaiKhoan = pathData + "imgEmailCuaBanLaGi.png"; 
+const imgDaCoTaiKhoan = pathData + "imgSoDiDongCuaBanLaGi.png";
+
 const pathConfig = pathData + "config.txt";
 const pathFirstname = pathData + "firstname.txt";
 const pathLastname = pathData + "lastname.txt";
@@ -1630,25 +1633,53 @@ function _regAcc(intI, strMode) {
     }
     _Click(385, 846 + y); //tiep
 
+    // Nếu đang ở giao diện Email thì chuyển sang giao diện số điện thoại
+    if (waitImage(imgEmailCuaBanLaGi, 2, "top") != 0) {
+        toast("Giao diện Email. Chuyển sang đăng ký bằng số di động...", "center", 1);
+
+        // Click vào nút "Đăng ký bằng số di động" theo hình
+        let btnResult = findImage({
+            targetImagePath: imgDangKySDT,
+            count: 1,
+            threshold: 0.95,
+            region: null,
+            debug: false,
+            method: 1
+        });
+        if (btnResult[0] && btnResult[0].length > 0) {
+            _Click(btnResult[0][0].x, btnResult[0][0].y);
+        } else {
+            // Nếu không tìm thấy theo hình, thử click tọa độ mặc định
+            _Click(375, 680); // Điều chỉnh lại tọa độ nếu cần
+        }
+        usleep(1000000);
+
+        // Đợi chuyển sang giao diện nhập số điện thoại
+        waitImage(imgSoDiDongCuaBanLaGi, 5, "top");
+    }
+    // Đến đây chắc chắn là giao diện nhập số điện thoại
     tg = _currentTime();
     let phone = genPhone(dauso[intI]);
     let maxTry = 3;
     while (maxTry-- > 0) {
         let kbPixel = getColor(100, 1250)[0][0];
         if (!(kbPixel == 0xffffff || kbPixel == 0xf7f7f7)) {
-            _Click(375, 410);
+            _Click(375, 410); // Click vào ô nhập số di động
             usleep(500000);
         } else {
             break;
         }
     }
+    // Nhập số điện thoại
     _gokytuP(phone);
     usleep(500000);
+    // Click nút "Tiếp"
     _Click(375, 620);
     usleep(1000000);
     if (_timeStart(tg) > 60) return 0;
 
 
+    let y1 = 620;
     _waitPixelArr(200, y1, [6781066, 13357785, 6122619, 14541544], time30);
     tapUntil(80, 400, 706, 1175, [0], 2, 2);
     passToSave = myPassword + _randPass(4);
