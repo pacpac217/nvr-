@@ -1573,21 +1573,35 @@ function _regAcc(intI, strMode) {
 
     usleep(1000000);
 
-    tg = _currentTime();
-    while (1) {
-        _Click(391, 597 + y);
-        _sleep(1);
-        if (_inArray(getColor(329, 391 + y)[0][0], [13176364, 13833266, 13109800]))
-            break;
-        if (_inArray(getColor(329, 394 + y)[0][0], [13176364, 13833266, 13109800]))
-            break;
+    toast("Click nút Tiếp 1...", "center", 1);
+    touchDown(1, 391, 597);
+    usleep(60000);
+    touchUp(1, 391, 597);
+    usleep(500000);
 
-        if (_timeStart(tg) > 30) return 0;
+    usleep(1200000); // Chờ chuyển màn hình (1.2s)
+
+    toast("Quét tìm nút Tiếp 2...", "center", 1);
+    const targetColorBase = 0x007AFF; // Màu xanh nút Tiếp (iOS)
+    const colorDelta = 0x30000;       // Sai số màu cho phép
+    let found = false;
+    for (let y = 750; y <= 770; y += 5) {
+        for (let x = 340; x <= 410; x += 5) {
+            let pixelColor = getColor(x, y)[0][0];
+            if (Math.abs(pixelColor - targetColorBase) < colorDelta) {
+                toast(`✅ Đã tìm thấy nút Tiếp 2 tại (${x},${y})!`, "top", 2);
+                console.log(`✅ Đã tìm thấy nút Tiếp 2 tại (${x},${y})!`);
+                touchDown(1, x, y);
+                usleep(60000);
+                touchUp(1, x, y);
+                usleep(500000);
+                found = true;
+                break;
+            }
+        }
+        if (found) break;
     }
-    usleep(1000000);
 
-    _Click(405, 680 + y); //tiep 2
-    usleep(2000000);
 
     let age = _ranbw(18, 30) + "";
     tapUntil(300, 300 + y, 630, 1280, [0], 30, 2); //click tuoi
@@ -1617,59 +1631,23 @@ function _regAcc(intI, strMode) {
     _Click(385, 846 + y); //tiep
 
     tg = _currentTime();
-    let kt = 0;
-    while (1) {
-        if (_inArray(getColor(345, 390)[0][0], [6122619, 6781066])) break;
-        if (_inArray(13357785, [getColor(345, 455)[0][0], getColor(345, 454)[0][0]])) { _sleep(1); _Click(400, 517); kt = 1; break; }
-        if (_inArray(getColor(345, 454)[0][0], [6781066, 6912652])) { _sleep(1); _Click(400, 517); kt = 1; break; }
-        if (_gcl(209, 807) == 660247 && _gcl(313, 796) == 660247 && _gcl(498, 797) == 1055004) { _Click(370, 806); }
-        tapUntil(300, 450 + y, 630, 1280, [0], 1, 2);
-        if (getColor(330, 645)[0][0] == 186 && getColor(330, 645)[0][1] == 192 && getColor(330, 645)[0][2] == 199) {
-            if (waitImage(imgDangKySDT, 3, "center") != 0) { _Click(375, 805); usleep(2000000); }
-        }
-    }
-    usleep(1000000);
     let phone = genPhone(dauso[intI]);
-    _gokytuP(phone);
-    usleep(1000000);
-    if (kt == 0) _Click(378, 700);
-    else _Click(400, 760);
-    _sleep(1);
-    tg = _currentTime();
-    let y1 = 350;
-
-    while (1) {
-        if (_gcl(364, 813) == 15856887 && _gcl(309, 912) == 660247) { _Click(370, 813); usleep(1000000); }
-        if (_gcl(263, 985) == 660247 && _gcl(397, 985) == 660247 && _gcl(465, 985) == 660247) { _Click(370, 985); usleep(1000000); }
-        if (_inArray(_gcl(661, 446), [13109800, 13832496])) {
-            while (1) {
-                _Click(400, 446); for (let i = 0; i < 15; i++) { _gclick(630, 1275); usleep(30000); }
-                phone = genPhone(dauso[intI]); _gokytuP(phone);
-                if (kt == 0) _Click(378, 700); else _Click(400, 760);
-                _sleep(2); if (!_inArray(_gcl(661, 446), [13109800, 13832496])) break;
-            }
+    let maxTry = 3;
+    while (maxTry-- > 0) {
+        let kbPixel = getColor(100, 1250)[0][0];
+        if (!(kbPixel == 0xffffff || kbPixel == 0xf7f7f7)) {
+            _Click(375, 410);
+            usleep(500000);
+        } else {
+            break;
         }
-        if (_inArray(_gcl(314, 456), [13109800, 13832496])) {
-            while (1) {
-                _Click(400, 530); for (let i = 0; i < 15; i++) { _gclick(630, 1275); usleep(30000); }
-                phone = genPhone(dauso[intI]); _gokytuP(phone);
-                if (kt == 0) _Click(378, 700); else _Click(400, 760);
-                _sleep(2); if (!_inArray(_gcl(314, 456), [13109800, 13832496])) break;
-            }
-        }
-        if (_inArray(getColor(410, y1)[0][0], [6781066, 13357785, 6122619, 14541544])) break;
-        if (_inArray(getColor(144, 815)[0][0], [25824, 550655, 31487])) {
-            tapUntil(400, 930, 410, 350, [6781066, 13357785, 6122619], 5, 2);
-            tapUntil(80, 400, 706, 1175, [0], 2, 2);
-            _sleep(2); break;
-        }
-        if (_inArray(1846067, [getColor(49, 176)[0][0], getColor(87, 176)[0][0]])) { _Click(383, 611); _sleep(2); }
-        if (_inArray(_gcl(55, 414), [660247, 1382942])) { _Click(383, 926); _sleep(2); }
-        if (waitImage(imgThietBiOGan, 1, "bottom")) { _Click(350, 1150); usleep(1000000); }
-        if (waitImage(imgPhoneCheckAgant, 1, "center") != 0) return 0;
-        if (waitImage(imgPhoneCheckVery, 1, "center") != 0) return 0;
-        if (_timeStart(tg) > 30) return 0;
     }
+    _gokytuP(phone);
+    usleep(500000);
+    _Click(375, 620);
+    usleep(1000000);
+    if (_timeStart(tg) > 60) return 0;
+
 
     _waitPixelArr(200, y1, [6781066, 13357785, 6122619, 14541544], time30);
     tapUntil(80, 400, 706, 1175, [0], 2, 2);
@@ -3143,5 +3121,4 @@ if (test == 0) {
         usleep(3000000);
     }
 }
-
 
