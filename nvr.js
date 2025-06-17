@@ -20,12 +20,16 @@ const {
 } = at;
 let base64 = require(rootDir() + "/Facebook/base64.js");
 
+console.log("Start script!");// ghi lai log
+
 const pathData = rootDir() + "/Facebook/data/";
 const imgKhongGuiLaiMa = pathData + "imgKhongGuiLaiMa.png";
 const imgDangKySDT = pathData + "imgDangKySDT.png";
 const imgThamGiaFacebook = pathData + "imgThamGiaFacebook.png";
 const imgTaoTaiKhoanMoi = pathData + "imgTaoTaiKhoanMoi.png";
 const imgDaCoTaiKhoan = pathData + "imgDaCoTaiKhoan.png";
+
+
 
 const imgEmailCuaBanLaGi = pathData + "imgEmailCuaBanLaGi.png"; 
 const imgSoDiDongCuaBanLaGi = pathData + "imgSoDiDongCuaBanLaGi.png";
@@ -1646,11 +1650,11 @@ function _regAcc(intI, strMode) {
             debug: false,
             method: 1
         });
-
+        console.log("btnResult:", JSON.stringify(btnResult));
         if (
-            Array.isArray(btnResult) &&
+            btnResult !== null &&
             btnResult.length > 0 &&
-            Array.isArray(btnResult[0]) &&
+            btnResult[0] &&
             btnResult[0].length > 0 &&
             btnResult[0][0] &&
             typeof btnResult[0][0].x === 'number' &&
@@ -1658,7 +1662,7 @@ function _regAcc(intI, strMode) {
         ) {
             _Click(btnResult[0][0].x, btnResult[0][0].y);
         } else {
-            _Click(375, 680); // fallback nếu không tìm được hình
+            _Click(375, 680);
         }
         usleep(1000000);
 
