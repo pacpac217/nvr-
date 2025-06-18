@@ -1493,40 +1493,8 @@ function _regAcc(intI, strMode) {
 
         _Click(365, 1160);
         _sleep(1);
-
-        // Các điều kiện thoát tiếp theo
-        if (
-            _gcl(265, 763) == 25824 &&
-            !_inArray(_gcl(329, 1128), [25824]) &&
-            !_inArray(_gcl(329, 1114), [25824])
-        ) break;
-
-        if (
-            _gcl(362, 546) == 14498366 &&
-            _gcl(170, 1065) == 25824 &&
-            _gcl(360, 1134) == 13423579
-        ) {
-            batdau = 0;
-            _Click(370, 1066);
-        }
-
-        if (
-            _gcl(370, 780) == 13423579 &&
-            _gcl(370, 866) == 13423579 &&
-            _gcl(370, 892) == 13423579
-        ) {
-            batdau = 0;
-            _Click(370, 830);
-        }
-
-        if (_gcl(399, 884) == 13423579 && _gcl(170, 823) == 25824) {
-            batdau = 0;
-            _Click(370, 930);
-        }
-
         if (_timeStart(tg) > 30) return 0;
     }
-
 
     _sleep(1);
     if (batdau) _Click(369, 761); // Bắt đầu
@@ -1603,7 +1571,7 @@ function _regAcc(intI, strMode) {
         }
         if (found) break;
     }
-
+    usleep(1200000)
 
     let age = _ranbw(18, 30) + "";
     tapUntil(300, 300 + y, 630, 1280, [0], 30, 2); //click tuoi
@@ -1664,7 +1632,7 @@ function _regAcc(intI, strMode) {
     usleep(500000);
     // Click nút "Tiếp"
     _Click(375, 670); // Tọa độ ước tính của nút Tiếp
-    _sleep(3);
+    _sleep(5);
 
     // --- BẮT ĐẦU PHẦN NHẬP MẬT KHẨU ---
     // 1. Chờ màn hình "Tạo mật khẩu" hiện ra và xác nhận ô nhập liệu sẵn sàng
@@ -1679,7 +1647,7 @@ function _regAcc(intI, strMode) {
 
     // 4. Bấm nút "Tiếp"
     _Click(375, 535);
-
+    _sleep(3)
     let cBlue = [15529467, 25824, 31487, 26073];
     tg = _currentTime();
     while (1) { if (_inArray(_gcl(170, 400), cBlue)) break; _sleep(1, "doi luu"); if (_timeStart(tg) > 60) return 0; }
@@ -1695,73 +1663,55 @@ function _regAcc(intI, strMode) {
         if (_timeStart(tg) > 60) return 0;
     }
 
+    // Logic kiểm tra kết quả cuối cùng
     toast("Đang chờ kết quả sau khi đăng ký...", "bottom", 2);
     let tg_ketqua = _currentTime();
     let regSuccess = false;
-    let pathImg = rootDir() + "/Facebook/data/imgKhongGuiLaiMa.png";
 
-    let opt = {
-        targetImagePath: pathImg,
-        count: 1,
-        threshold: 0.88,
-        region: null,
-        debug: false,
-        method: 1,
-    };
+    function isNear(c1, c2, range = 10000) {
+        return Math.abs(c1 - c2) < range;
+    }
+    function checkThreePixelPoints() {
+        const color1 = 660247;
+        const color2 = 6122619;
+        const color3 = 6254205;
 
+        const p1 = getColor(57, 92)[0][0];
+        const p2 = getColor(84, 418)[0][0];
+        const p3 = getColor(80, 387)[0][0];
+
+        let matchCount = 0;
+        if (isNear(p1, color1)) matchCount++;
+        if (isNear(p2, color2)) matchCount++;
+        if (isNear(p3, color3)) matchCount++;
+
+        return matchCount >= 2;
+    }
     while (_timeStart(tg_ketqua) < 30) {
         toast("Kiểm tra kết quả... " + _timeStart(tg_ketqua) + "/30s", "bottom", 1);
-
-        // 1. Check ảnh KHÔNG GỬI LẠI MÃ (giao diện cũ)
-        let resultCu = findImage({ targetImagePath: imgKhongGuiLaiMa, count: 1, threshold: 0.9 });
-        if (
-            resultCu &&
-            Array.isArray(resultCu) &&
-            resultCu.length > 0 &&
-            Array.isArray(resultCu[0]) &&
-            resultCu[0].length > 0 &&
-            resultCu[0][0] &&
-            typeof resultCu[0][0].x === 'number' &&
-            typeof resultCu[0][0].y === 'number'
-        ) {
-            toast("✅ Reg NVR thành công! (Giao diện cũ)", "center", 3);
-            upSite(kho1);
-            return 1; // THÀNH CÔNG
+        // 1. Kiểm tra 2/3 điểm màu đặc trưng
+        if (checkThreePixelPoints()) {
+            toast("✅ Reg NVR thành công! (Theo điểm ảnh)", "center", 3);
+            regSuccess = true;
+            break;
         }
-
         // 2. Nếu có popup → đóng và thử lại tìm ảnh
-        if (_inArray(getColor(370, 150)[0][0], [0x666666])) {
+        if (_inArray(getColor(380, 75)[0][0], [6710886])) {
             toast("⚠️ Popup đang che - thử đóng", "bottom", 1);
-            _Click(370, 150);
+            _Click(380, 75)
             usleep(1000000);
-
-            let result2 = findImage(opt);
-            if (
-                result2 &&
-                Array.isArray(result2) &&
-                result2.length > 0 &&
-                Array.isArray(result2[0]) &&
-                result2[0].length > 0 &&
-                result2[0][0] &&
-                typeof result2[0][0].x === 'number' &&
-                typeof result2[0][0].y === 'number'
-            ) {
-                toast("✅ Ảnh hiện ra sau khi đóng popup!", "bottom", 3);
-                regSuccess = true;
-                break;
+            regSuccess = true;
+            break;
             }
-        }
-
-        // 3. Check die / checkpoint
+        
+        // 3. Kiểm tra bị checkpoint / die
         if (_checkDie(1) == 1) {
             toast("❌ Bị checkpoint/die sau khi đăng ký.", "bottom", 3);
             upSite(kho2);
             return 0;
         }
-
         usleep(1000000);
     }
-
     // ⚙️ Sau khi thoát vòng lặp
     if (regSuccess) {
         upSite(kho1);
@@ -1771,9 +1721,9 @@ function _regAcc(intI, strMode) {
         upSite(kho2);
         return 0;
     }
+
+
 }
-
-
 function _inArray(intI, arrCheck) {
     let kq = false;
     for (let i = 0; i < arrCheck.length; i++) {
@@ -2849,7 +2799,7 @@ function _currentTime() {
 }
 
 function openFb(intX, strMode, icheck) {
-    let c = [15529467, 25824, 31487, 26073];
+    let c = [15529467, 25824, 31487, 26073, 1846067];
     let iCheck = 0;
 
     while (intX > 0) {
@@ -2874,6 +2824,14 @@ function openFb(intX, strMode, icheck) {
             if (
                 _inArray(_gcl(329, 1128), c) ||
                 waitImage(imgTaoTaiKhoanMoi, 1, "top") != 0
+            ) {
+                toast("✅ Đã vào màn hình chính (Reg/Login)", "top", 2);
+                iCheck = 1;
+                break;
+            }
+            if (
+                _inArray(_gcl(674, 107), c) ||
+                waitImage(imgTaoTaiKhoanMoi, 1, "center") != 0
             ) {
                 toast("✅ Đã vào màn hình chính (Reg/Login)", "top", 2);
                 iCheck = 1;
