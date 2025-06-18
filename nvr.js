@@ -20,17 +20,13 @@ const {
 } = at;
 let base64 = require(rootDir() + "/Facebook/base64.js");
 
-
 const pathData = rootDir() + "/Facebook/data/";
 const imgKhongGuiLaiMa = pathData + "imgKhongGuiLaiMa.png";
 const imgDangKySDT = pathData + "imgDangKySDT.png";
 const imgThamGiaFacebook = pathData + "imgThamGiaFacebook.png";
 const imgTaoTaiKhoanMoi = pathData + "imgTaoTaiKhoanMoi.png";
 const imgDaCoTaiKhoan = pathData + "imgDaCoTaiKhoan.png";
-
-
-
-const imgEmailCuaBanLaGi = pathData + "imgEmailCuaBanLaGi.png";
+const imgEmailCuaBanLaGi = pathData + "imgEmailCuaBanLaGi.png"; 
 const imgSoDiDongCuaBanLaGi = pathData + "imgSoDiDongCuaBanLaGi.png";
 
 const pathConfig = pathData + "config.txt";
@@ -1637,62 +1633,53 @@ function _regAcc(intI, strMode) {
     _Click(385, 846 + y); //tiep
 
     // Nếu đang ở giao diện Email thì chuyển sang giao diện số điện thoại
+    _sleep(3);
+    toast("Kiểm tra giao diện SĐT/Email...", "center", 2);
+
     if (waitImage(imgEmailCuaBanLaGi, 2, "top") != 0) {
-        toast("Giao diện Email. Chuyển sang đăng ký bằng số di động...", "center", 1);
+        toast("🎯 Phát hiện màn hình Email. Chuyển sang SĐT...", "center", 2);
 
-        // Click vào nút "Đăng ký bằng số di động" theo hình
-        if (waitImage(imgEmailCuaBanLaGi, 2, "top") != 0) {
-            toast("Giao diện Email. Chuyển sang đăng ký bằng số di động...", "center", 1);
+        // Bấm trực tiếp vào tọa độ của nút "Đăng ký bằng số di động"
+        _Click(375, 930);
 
-            // Quét tìm màu xanh nút trong vùng dự kiến (kiểu iOS)
-            let found = false;
-            let targetColor = 0x007AFF; // màu xanh dương iOS
-            let colorDelta = 0x30000;   // cho phép lệch màu (nên giữ nguyên)
-            for (let y = 670; y <= 700; y += 5) {
-                for (let x = 330; x <= 420; x += 5) {
-                    let color = getColor(x, y)[0][0];
-                    if (Math.abs(color - targetColor) < colorDelta) {
-                        _Click(x, y);
-                        found = true;
-                        break;
-                    }
-                }
-                if (found) break;
-            }
-            if (!found) {
-                _Click(375, 680); // fallback click nếu không tìm thấy màu xanh
-            }
-            usleep(1000000);
-            waitImage(imgSoDiDongCuaBanLaGi, 5, "top");
-        }
+        toast("✅ Đã click vào Đăng ký bằng SĐT.", "center", 2);
+        usleep(2000000); // Chờ màn hình SĐT hiện ra
     }
-    // Đến đây chắc chắn là giao diện nhập số điện thoại
-    tg = _currentTime();
-    let phone = genPhone(dauso[intI]);
+    toast("Chuẩn bị nhập số điện thoại...", "center", 2);
+
+    // DÙNG CHUNG BIẾN maxTry - KHAI BÁO MỘT LẦN
     let maxTry = 3;
     while (maxTry-- > 0) {
         let kbPixel = getColor(100, 1250)[0][0];
-        if (!(kbPixel == 0xffffff || kbPixel == 0xf7f7f7)) {
-            _Click(375, 410); // Click vào ô nhập số di động
-            usleep(500000);
+        if (kbPixel !== 0xf7f7f7 && kbPixel !== 0xffffff) {
+            _Click(375, 410);
+            usleep(1000000);
         } else {
             break;
         }
     }
-    // Nhập số điện thoại
+
+    let phone = genPhone(dauso[intI]);
     _gokytuP(phone);
     usleep(500000);
     // Click nút "Tiếp"
-    _Click(375, 620);
-    usleep(1000000);
-    if (_timeStart(tg) > 60) return 0;
+    _Click(375, 670); // Tọa độ ước tính của nút Tiếp
+    _sleep(3);
 
-    let y1 = 620;
-    _waitPixelArr(200, y1, [6781066, 13357785, 6122619, 14541544], time30);
-    tapUntil(80, 400, 706, 1175, [0], 2, 2);
+    // --- BẮT ĐẦU PHẦN NHẬP MẬT KHẨU ---
+    // 1. Chờ màn hình "Tạo mật khẩu" hiện ra và xác nhận ô nhập liệu sẵn sàng
+    _waitPixel(375, 400, 16777215, 30);
+
+    // 2. CLICK VÀO Ô NHẬP MẬT KHẨU
+    _Click(375, 400); // Click vào ô mật khẩu để đặt con trỏ
+
+    // 3. Nhập mật khẩu (BỎ QUA CHECK BÀN PHÍM)
     passToSave = myPassword + _randPass(4);
-    _gokytu(passToSave);
-    _Click(385, 531);
+    _gokytu(passToSave); // Gõ mật khẩu luôn
+
+    // 4. Bấm nút "Tiếp"
+    _Click(375, 535);
+
     let cBlue = [15529467, 25824, 31487, 26073];
     tg = _currentTime();
     while (1) { if (_inArray(_gcl(170, 400), cBlue)) break; _sleep(1, "doi luu"); if (_timeStart(tg) > 60) return 0; }
@@ -1708,7 +1695,6 @@ function _regAcc(intI, strMode) {
         if (_timeStart(tg) > 60) return 0;
     }
 
-    // Logic kiểm tra kết quả cuối cùng
     toast("Đang chờ kết quả sau khi đăng ký...", "bottom", 2);
     let tg_ketqua = _currentTime();
     let regSuccess = false;
@@ -1726,12 +1712,21 @@ function _regAcc(intI, strMode) {
     while (_timeStart(tg_ketqua) < 30) {
         toast("Kiểm tra kết quả... " + _timeStart(tg_ketqua) + "/30s", "bottom", 1);
 
-        // 1. Check ảnh KHÔNG GỬI LẠI MÃ
-        let result1 = findImage(opt);
-        if (result1[0] && result1[0].length > 0) {
-            toast("✅ Reg NVR thành công! Đã tới màn hình KHÔNG GỬI LẠI MÃ.", "bottom", 3);
-            regSuccess = true;
-            break;
+        // 1. Check ảnh KHÔNG GỬI LẠI MÃ (giao diện cũ)
+        let resultCu = findImage({ targetImagePath: imgKhongGuiLaiMa, count: 1, threshold: 0.9 });
+        if (
+            resultCu &&
+            Array.isArray(resultCu) &&
+            resultCu.length > 0 &&
+            Array.isArray(resultCu[0]) &&
+            resultCu[0].length > 0 &&
+            resultCu[0][0] &&
+            typeof resultCu[0][0].x === 'number' &&
+            typeof resultCu[0][0].y === 'number'
+        ) {
+            toast("✅ Reg NVR thành công! (Giao diện cũ)", "center", 3);
+            upSite(kho1);
+            return 1; // THÀNH CÔNG
         }
 
         // 2. Nếu có popup → đóng và thử lại tìm ảnh
@@ -1741,7 +1736,16 @@ function _regAcc(intI, strMode) {
             usleep(1000000);
 
             let result2 = findImage(opt);
-            if (result2[0] && result2[0].length > 0) {
+            if (
+                result2 &&
+                Array.isArray(result2) &&
+                result2.length > 0 &&
+                Array.isArray(result2[0]) &&
+                result2[0].length > 0 &&
+                result2[0][0] &&
+                typeof result2[0][0].x === 'number' &&
+                typeof result2[0][0].y === 'number'
+            ) {
                 toast("✅ Ảnh hiện ra sau khi đóng popup!", "bottom", 3);
                 regSuccess = true;
                 break;
@@ -1767,8 +1771,8 @@ function _regAcc(intI, strMode) {
         upSite(kho2);
         return 0;
     }
-
 }
+
 
 function _inArray(intI, arrCheck) {
     let kq = false;
@@ -2244,26 +2248,27 @@ function waitImage(pathImage, intTime, vitri) {
     const opt = {
         targetImagePath: pathImage,
         count: 1,
-        threshold: 0.95, // OPTIONAL, default is 0.9
+        threshold: 0.95,
         region: null,
         debug: false,
         method: 1,
     };
     let [result, error] = [[], null];
 
-    while (1) {
-        if (intToast == 1)
-            toast("Waitimage : " + _timeStart(tg) + "/" + intTime, vitri, 1);
-        [result, error] = findImage(opt);
-        if (result != "") {
-            //usleep(1000000);
-            return result[0].y;
-        }
-        usleep(300000);
-        if (_timeStart(tg) > intTime) return 0;
-    }
-}
+    while (_timeStart(tg) < intTime) {
+        if (intToast == 1) toast("Waitimage : " + _timeStart(tg) + "/" + intTime, vitri, 1);
 
+        [result, error] = findImage(opt);
+
+        // KIỂM TRA KẾT QUẢ MỘT CÁCH AN TOÀN
+        if (result && result.length > 0 && result[0] && typeof result[0].y === 'number') {
+            return result[0].y; // Trả về tọa độ Y nếu tìm thấy
+        }
+
+        usleep(500000); // Chờ 0.5 giây rồi thử lại
+    }
+    return 0; // Trả về 0 nếu hết thời gian mà không tìm thấy
+}
 function imgClick(pathImage, intTime, strMess) {
     let tg = _currentTime();
     const opt = {
@@ -2875,7 +2880,7 @@ function openFb(intX, strMode, icheck) {
                 break;
             }
 
-            if (_timeStart(tg) > 15) {
+            if (_timeStart(tg) > 20) {
                 toast("❌ Mở FB thất bại, timeout", "top", 2);
                 break;
             }
@@ -3160,3 +3165,5 @@ if (test == 0) {
         usleep(3000000);
     }
 }
+
+
